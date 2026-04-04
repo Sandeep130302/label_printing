@@ -150,7 +150,7 @@ function LabelCard({ label, paperType, companyConfig }) {
             style={{ 
               height: "100%",
               width: "100%",
-              objectFit: "contain"
+              // objectFit: "contain"
             }}
           />
         ) : (
@@ -566,7 +566,7 @@ function PrintPreview() {
 
     // Build logo HTML
     const logoHtml = companyLogo 
-      ? `<img src="${companyLogo}" alt="Logo" style="height: ${logoHeight}; object-fit: contain;" />`
+      ? `<img src="${companyLogo}" alt="Logo" style="height: ${logoHeight}; " />`
       : `<span style="color: #2563eb; font-weight: bold; font-size: ${isRoll ? '5mm' : '4mm'};">jr</span><span style="color: #374151; font-weight: 600; font-size: ${isRoll ? '5mm' : '4mm'};">tech</span><span style="color: #22c55e; font-weight: 600; font-size: ${isRoll ? '5mm' : '4mm'};">labs</span><span style="color: #9ca3af; font-size: ${isRoll ? '2.5mm' : '2mm'}; margin-left: 1mm;">pvt . ltd</span>`;
 
     const printWindow = window.open('', '_blank');
