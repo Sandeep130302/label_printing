@@ -13,9 +13,9 @@ const envConfig = {
   DATABASE_URL: process.env.DATABASE_URL || 'postgresql:neondb_owner:npg_hNzw48iOXGIU@ep-restless-meadow-amv75la6-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
   DB_HOST: process.env.DB_HOST || 'localhost',
   DB_PORT: parseInt(process.env.DB_PORT, 10) || 5432,
-  DB_USER: process.env.DB_USER ||neondb_owner,
-  DB_PASSWORD: process.env.DB_PASSWORD || npg_eRT7IchD9gvr,
-  DB_NAME: process.env.DB_NAME || label_printing,
+  DB_USER: process.env.DB_USER || 'neondb_owner',
+  DB_PASSWORD: process.env.DB_PASSWORD || 'npg_eRT7IchD9gvr',
+  DB_NAME: process.env.DB_NAME || 'label_printing',
 };
 
 // Validation: Check required environment variables
