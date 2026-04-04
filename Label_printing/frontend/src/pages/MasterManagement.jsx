@@ -449,13 +449,13 @@ function MasterManagement() {
     return <div className="p-6 text-center">Loading...</div>;
   }
 
-  if (itemsError) {
-    return (
-      <div className="p-6 text-center text-destructive">
-        Error: {itemsError}
-      </div>
-    );
-  }
+  // if (itemsError) {
+  //   return (
+  //     <div className="p-6 text-center text-destructive">
+  //       Error: {itemsError}
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
