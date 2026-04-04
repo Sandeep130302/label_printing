@@ -27,7 +27,8 @@ const app = express();
 // ============================================
 
 // 1. CORS (must be first)
-app.use(cors(corsOptions));
+app.use(cors);
+//app.use(cors(corsOptions));
 
 // 2. Body Parser
 app.use(express.json({ limit: '10mb' }));
