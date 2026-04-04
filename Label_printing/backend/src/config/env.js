@@ -1,39 +1,54 @@
-import dotenv from 'dotenv';
+import pg from 'pg';
+const { Pool } = pg;
 
-// Load environment variables from .env file
-dotenv.config();
+// ============================================
+// CREATE CONNECTION POOL (NEON FIX)
+// ============================================
 
-// Environment configuration object
-const envConfig = {
-  // Server
-  PORT: process.env.PORT || 5000,
-  NODE_ENV: process.env.NODE_ENV || 'development',
-
-  // Database
-  DATABASE_URL: process.env.DATABASE_URL || 'postgresql:neondb_owner:npg_hNzw48iOXGIU@ep-restless-meadow-amv75la6-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
-  DB_HOST: process.env.DB_HOST || 'localhost',
-  DB_PORT: parseInt(process.env.DB_PORT, 10) || 5432,
-  DB_USER: process.env.DB_USER || 'neondb_owner',
-  DB_PASSWORD: process.env.DB_PASSWORD || 'npg_eRT7IchD9gvr',
-  DB_NAME: process.env.DB_NAME || 'label_printing',
-};
-
-// Validation: Check required environment variables
-const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
-
-requiredEnvVars.forEach((varName) => {
-  if (!envConfig[varName]) {
-    throw new Error(`Missing required environment variable: ${varName}`);
-  }
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL, // ✅ USE THIS
+  ssl: {
+    rejectUnauthorized: false, // ✅ REQUIRED FOR NEON
+  },
 });
 
-// Log configuration on startup (sensitive values hidden)
-console.log('✓ Environment Configuration Loaded:');
-console.log(`  - Server Port: ${envConfig.PORT}`);
-console.log(`  - Node Environment: ${envConfig.NODE_ENV}`);
-console.log(`  - Database Host: ${envConfig.DB_HOST}`);
-console.log(`  - Database Port: ${envConfig.DB_PORT}`);
-console.log(`  - Database Name: ${envConfig.DB_NAME}`);
-console.log(`  - Database User: ${envConfig.DB_USER}`);
+// ============================================
+// CONNECTION EVENTS
+// ============================================
 
-export default envConfig;
+pool.on('connect', () => {
+  console.log('✅ Connected to Neon PostgreSQL database');
+});
+
+pool.on('error', (err) => {
+  console.error('❌ Unexpected DB error', err);
+  process.exit(-1);
+});
+
+// ============================================
+// QUERY HELPER
+// ============================================
+
+async function query(text, params) {
+  const start = Date.now();
+  try {
+    const result = await pool.query(text, params);
+    const duration = Date.now() - start;
+
+    console.log('📊 Query executed', {
+      duration: `${duration}ms`,
+      rows: result.rowCount,
+    });
+
+    return result;
+  } catch (error) {
+    console.error('❌ Database query error:', error.message);
+    throw error;
+  }
+}
+
+// ============================================
+// EXPORTS
+// ============================================
+
+export { query, pool };
