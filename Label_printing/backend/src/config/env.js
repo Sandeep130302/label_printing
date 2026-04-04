@@ -13,9 +13,9 @@ const envConfig = {
   DATABASE_URL: process.env.DATABASE_URL,
   DB_HOST: process.env.DB_HOST || 'localhost',
   DB_PORT: parseInt(process.env.DB_PORT, 10) || 5432,
-  DB_USER: process.env.DB_USER,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_NAME: process.env.DB_NAME,
+  DB_USER: process.env.DB_USER ||neondb_owner,
+  DB_PASSWORD: process.env.DB_PASSWORD || npg_eRT7IchD9gvr,
+  DB_NAME: process.env.DB_NAME || label_printing,
 };
 
 // Validation: Check required environment variables
