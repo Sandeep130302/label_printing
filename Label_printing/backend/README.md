@@ -44,7 +44,7 @@ Production mode:
 npm start
 ```
 
-Server will run on: `http://localhost:5000`
+Server will run on: `https://label-printing-5qu6.onrender.com`
 
 ## Database Setup
 
@@ -55,7 +55,7 @@ npm run seed
 
 ## API Documentation
 
-API will be available at: `http://localhost:5000/api/`
+API will be available at: `https://label-printing-5qu6.onrender.com/api/`
 
 Endpoints:
 - `/api/master/products` - Product management

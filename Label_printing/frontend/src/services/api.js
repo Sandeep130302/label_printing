@@ -4,7 +4,7 @@
 // All API endpoints defined here
 // Makes it easy to change URLs or add auth headers
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://label-printing-5qu6.onrender.com/api';
 
 // ============================================
 // HELPER FUNCTION - API CALL WITH ERROR HANDLING
