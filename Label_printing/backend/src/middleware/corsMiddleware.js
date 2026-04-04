@@ -11,7 +11,9 @@ export const corsOptions = {
     'http://localhost:5173',      // Vite dev server
     'http://localhost:3000',      // Alternative port
     'http://127.0.0.1:5173',      // Local IP
-    'https://label-printing-5qu6.onrender.com'       // Same origin (during testing)
+    'https://label-printing-5qu6.onrender.com',
+    
+    'https://labelprinting-three.vercel.app'       // Same origin (during testing)
   ],
   credentials: true,              // Allow cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
