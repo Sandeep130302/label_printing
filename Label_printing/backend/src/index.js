@@ -9,7 +9,7 @@ import envConfig from './config/env.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { corsOptions } from './middleware/corsMiddleware.js';
-
+import { getCorsOptions } from './middleware/corsMiddleware.js';
 // Import routes
 import masterRoutes from './routes/master.js';
 import configRoutes from './routes/config.js';
