@@ -10,7 +10,7 @@ const envConfig = {
   NODE_ENV: process.env.NODE_ENV || 'development',
 
   // Database
-  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_URL: process.env.DATABASE_URL || 'postgresql:neondb_owner:npg_hNzw48iOXGIU@ep-restless-meadow-amv75la6-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
   DB_HOST: process.env.DB_HOST || 'localhost',
   DB_PORT: parseInt(process.env.DB_PORT, 10) || 5432,
   DB_USER: process.env.DB_USER ||neondb_owner,
