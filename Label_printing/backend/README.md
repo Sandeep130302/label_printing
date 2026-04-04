@@ -6,7 +6,7 @@ Express.js backend for the Label Printing System.
 
 - Node.js 16+
 - PostgreSQL 14+
-- npm or yarn
+- npm or yarn hkjkj
 
 ## Installation
 
