@@ -3,10 +3,10 @@ const { Pool } = pg;
 
 // Create PostgreSQL connection pool
 const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
+  user: process.env.DB_USER || 'neondb_owner',
   host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'jerobyte_erp',
-  password: process.env.DB_PASSWORD || 'postgres',
+  database: process.env.DB_NAME || 'label_printing',
+  password: process.env.DB_PASSWORD || 'npg_eRT7IchD9gvr',
   port: process.env.DB_PORT || 5432,
 });
 
