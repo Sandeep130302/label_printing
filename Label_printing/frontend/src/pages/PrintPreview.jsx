@@ -149,7 +149,7 @@ function LabelCard({ label, paperType, companyConfig }) {
             alt="Logo" 
             style={{ 
               height: "100%",
-              width: "100%",
+              width: "75%",
               // objectFit: "contain"
             }}
           />
