@@ -11,6 +11,18 @@ router.post('/events', reportController.createEventReport);
 router.get('/events/:id', reportController.getEventReportById);
 router.get('/events/:eventId/reports', reportController.getReportsByEvent);
 
+// Get unique reports by event (deduplicates by serial number)
+router.get('/events/:eventId/unique-reports', reportController.getUniqueReportsByEvent);
+
+// ✅ NEW: Get filtered labels for an event (with search)
+router.get('/events/:eventId/filtered-labels', reportController.getFilteredLabelsByEvent);
+
+// ============================================
+// ✅ NEW: SEARCH ROUTE
+// Search events with labels - supports time filter and field search
+// ============================================
+router.get('/search', reportController.searchEventsWithLabels);
+
 // ============================================
 // REPORT ROUTES
 // ============================================

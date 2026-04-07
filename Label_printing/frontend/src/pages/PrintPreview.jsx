@@ -113,10 +113,10 @@ function LabelCard({ label, paperType, companyConfig }) {
   const companyLogo = companyConfig?.company_logo || null;
 
   // Font sizes adjusted for mm dimensions
-  const labelFontSize = isRoll ? "2.5mm" : "3mm";
-  const madeInFontSize = isRoll ? "3mm" : "3mm";
-  const contactFontSize = isRoll ? "3.5mm" : "3.2mm";
-  const phoneFontSize = isRoll ? "3.8mm" : "3.3mm";
+  const labelFontSize = isRoll ? "3.5mm" : "3mm";
+  const madeInFontSize = isRoll ? "4mm" : "3mm";
+  const contactFontSize = isRoll ? "4mm" : "3.3mm";
+  const phoneFontSize = isRoll ? "4.5mm" : "3.8mm";
 
   // QR size in pixels (approximate: 1mm ≈ 3.78px at 96dpi)
   const qrSizePx = isRoll ? 72 : 60;
@@ -179,7 +179,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>PRODUCT</div>
           <div style={{ 
             width: dims.valueWidth, 
-            paddingLeft: "1mm",
+            paddingLeft: "2mm",
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
@@ -203,7 +203,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>CAPACITY</div>
           <div style={{ 
             width: dims.valueWidth, 
-            paddingLeft: "1mm",
+            paddingLeft: "2mm",
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
@@ -227,7 +227,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>MODEL NO</div>
           <div style={{ 
             width: dims.valueWidth, 
-            paddingLeft: "1mm",
+            paddingLeft: "2mm",
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
@@ -251,7 +251,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>SERIAL NO</div>
           <div style={{ 
             width: dims.valueWidth, 
-            paddingLeft: "1mm",
+            paddingLeft: "2mm",
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
@@ -276,7 +276,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>MFG . CODE</div>
           <div style={{ 
             width: dims.valueWidth, 
-            paddingLeft: "1mm",
+            paddingLeft: "2mm",
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
@@ -300,7 +300,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>SSN</div>
           <div style={{ 
             width: dims.valueWidth, 
-            paddingLeft: "1mm",
+            paddingLeft: "2mm",
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
@@ -482,10 +482,10 @@ function PrintPreview() {
     const companyLogo = companyConfig?.company_logo || null;
 
     // Font sizes
-    const labelFontSize = isRoll ? "2.5mm" : "3mm";
-    const madeInFontSize = isRoll ? "3mm" : "3mm";
-    const contactFontSize = isRoll ? "3mm" : "3.2mm";
-    const phoneFontSize = isRoll ? "3.8mm" : "3.5mm";
+    const labelFontSize = isRoll ? "3.5mm" : "3mm";
+    const madeInFontSize = isRoll ? "4mm" : "3mm";
+    const contactFontSize = isRoll ? "4mm" : "3.3mm";
+    const phoneFontSize = isRoll ? "4.5mm" : "3.8mm";
     const logoHeight = isRoll ? "10mm" : "7mm";
     const qrSizePx = isRoll ? 72 : 60;
 
@@ -633,7 +633,7 @@ function PrintPreview() {
           }
           .label-value {
             width: ${dims.valueWidth};
-            padding-left: 1mm;
+            padding-left: 2mm;
             color: #374151;
             font-weight: 700;
             font-size: ${labelFontSize};
@@ -972,3 +972,5 @@ function PrintPreview() {
 }
 
 export default PrintPreview;
+
+

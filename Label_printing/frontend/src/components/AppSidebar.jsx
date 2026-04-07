@@ -8,13 +8,13 @@ const navItems = [
 ];
 function AppSidebar() {
   const location = useLocation();
-  return <aside className="w-56 min-h-screen flex flex-col justify-between" style={{ background: "hsl(var(--sidebar-bg))" }}>
+  return <aside className="w-56 min-h-screen flex flex-col justify-between" style={{ background: "#49494b" }}>
       <div>
         {
     /* Brand */
   }
         <div className="px-5 pt-6 pb-4">
-          <h1 className="text-lg font-extrabold tracking-tight" style={{ color: "hsl(0 0% 100%)" }}>
+          <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: "hsl(0 0% 100%)" }}>
             JEROBYTE
           </h1>
           

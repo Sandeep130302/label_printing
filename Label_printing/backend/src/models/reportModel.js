@@ -78,6 +78,225 @@ export async function getReportsByEvent(eventId) {
   return result.rows;
 }
 
+// ============================================
+// Get UNIQUE reports by event (deduplicates by serial number)
+// ============================================
+
+export async function getUniqueReportsByEvent(eventId) {
+  try {
+    const result = await query(
+      `SELECT DISTINCT ON (serial_number)
+        report_id,
+        overall_report_id,
+        product_name,
+        capacity_name,
+        model_name,
+        serial_number,
+        manufacturing_code,
+        ssn,
+        qr_data,
+        COUNT(*) OVER (PARTITION BY serial_number) as label_count,
+        COALESCE(is_reprinted, false) as is_reprinted,
+        created_at
+      FROM Report
+      WHERE overall_report_id = $1
+      ORDER BY serial_number, created_at ASC`,
+      [eventId]
+    );
+
+    return result.rows;
+  } catch (error) {
+    console.error("DB ERROR (unique reports):", error);
+    throw error;
+  }
+}
+
+// ============================================
+// ✅ NEW: SEARCH EVENTS WITH LABELS
+// Searches events that contain matching labels
+// Supports time filter and field-based search
+// ============================================
+
+export async function searchEventsWithLabels(filters) {
+  try {
+    let whereConditions = [];
+    let params = [];
+    let paramCount = 1;
+
+    // Field mapping for search
+    const fieldMapping = {
+      'product': 'r.product_name',
+      'capacity': 'r.capacity_name',
+      'model': 'r.model_name',
+      'serial': 'r.serial_number',
+      'mfgCode': 'r.manufacturing_code',
+      'ssn': 'r.ssn'
+    };
+
+    // ============================================
+    // TIME FILTER - Applied to Overall_Event_Report.created_at
+    // ============================================
+    if (filters.timeFilter && filters.timeFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      let startDate;
+      let endDate = new Date();
+      
+      switch (filters.timeFilter) {
+        case 'today':
+          startDate = today;
+          break;
+        case 'yesterday':
+          startDate = new Date(today);
+          startDate.setDate(startDate.getDate() - 1);
+          endDate = today;
+          break;
+        case 'week':
+          startDate = new Date(today);
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case 'month':
+          startDate = new Date(today);
+          startDate.setMonth(startDate.getMonth() - 1);
+          break;
+        case 'year':
+          startDate = new Date(today);
+          startDate.setFullYear(startDate.getFullYear() - 1);
+          break;
+        default:
+          startDate = null;
+      }
+      
+      if (startDate) {
+        whereConditions.push(`oer.created_at >= $${paramCount}`);
+        params.push(startDate.toISOString());
+        paramCount++;
+        
+        if (filters.timeFilter === 'yesterday') {
+          whereConditions.push(`oer.created_at < $${paramCount}`);
+          params.push(endDate.toISOString());
+          paramCount++;
+        }
+      }
+    }
+
+    // ============================================
+    // FIELD SEARCH - Applied to Report table
+    // ============================================
+    let hasFieldSearch = filters.searchField && filters.searchValue && filters.searchValue.trim() !== '';
+    
+    if (hasFieldSearch) {
+      const dbField = fieldMapping[filters.searchField];
+      if (dbField) {
+        whereConditions.push(`${dbField} ILIKE $${paramCount}`);
+        params.push(`%${filters.searchValue.trim()}%`);
+        paramCount++;
+      }
+    }
+
+    // ============================================
+    // BUILD QUERY
+    // ============================================
+    
+    let sql;
+    
+    if (hasFieldSearch) {
+      // Join with Report table for field search
+      sql = `
+        SELECT 
+          oer.overall_report_id,
+          oer.event_number,
+          oer.number_of_label_printed,
+          oer.created_at,
+          COUNT(DISTINCT r.serial_number) as matching_labels
+        FROM Overall_Event_Report oer
+        INNER JOIN Report r ON oer.overall_report_id = r.overall_report_id
+        ${whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : ''}
+        GROUP BY oer.overall_report_id, oer.event_number, oer.number_of_label_printed, oer.created_at
+        ORDER BY oer.created_at DESC
+      `;
+    } else {
+      // No field search, just time filter on events
+      sql = `
+        SELECT 
+          oer.overall_report_id,
+          oer.event_number,
+          oer.number_of_label_printed,
+          oer.created_at,
+          NULL as matching_labels
+        FROM Overall_Event_Report oer
+        ${whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : ''}
+        ORDER BY oer.created_at DESC
+      `;
+    }
+
+    const result = await query(sql, params);
+    return result.rows;
+    
+  } catch (error) {
+    console.error("DB ERROR (searchEventsWithLabels):", error);
+    throw error;
+  }
+}
+
+// ============================================
+// ✅ NEW: Get filtered labels for an event
+// Returns labels that match the search criteria within an event
+// ============================================
+
+export async function getFilteredLabelsByEvent(eventId, searchField, searchValue) {
+  try {
+    let whereConditions = [`overall_report_id = $1`];
+    let params = [eventId];
+    let paramCount = 2;
+
+    if (searchField && searchValue && searchValue.trim() !== '') {
+      const fieldMapping = {
+        'product': 'product_name',
+        'capacity': 'capacity_name',
+        'model': 'model_name',
+        'serial': 'serial_number',
+        'mfgCode': 'manufacturing_code',
+        'ssn': 'ssn'
+      };
+      
+      const dbField = fieldMapping[searchField];
+      
+      if (dbField) {
+        whereConditions.push(`${dbField} ILIKE $${paramCount}`);
+        params.push(`%${searchValue.trim()}%`);
+        paramCount++;
+      }
+    }
+
+    const result = await query(
+      `SELECT DISTINCT ON (serial_number)
+        report_id,
+        overall_report_id,
+        product_name,
+        capacity_name,
+        model_name,
+        serial_number,
+        manufacturing_code,
+        ssn,
+        qr_data,
+        COUNT(*) OVER (PARTITION BY serial_number) as label_count,
+        COALESCE(is_reprinted, false) as is_reprinted,
+        created_at
+      FROM Report
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY serial_number, created_at ASC`,
+      params
+    );
+
+    return result.rows;
+  } catch (error) {
+    console.error("DB ERROR (getFilteredLabelsByEvent):", error);
+    throw error;
+  }
+}
+
 export async function getReportsByProduct(productName) {
   const result = await query(
     'SELECT * FROM Report WHERE product_name = $1 ORDER BY created_at DESC',

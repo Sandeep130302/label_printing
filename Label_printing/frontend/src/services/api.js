@@ -6,6 +6,7 @@
 
 const API_BASE_URL = 'https://label-printing-5qu6.onrender.com/api';
 
+
 // ============================================
 // HELPER FUNCTION - API CALL WITH ERROR HANDLING
 // ============================================
@@ -235,12 +236,9 @@ export async function batchGenerateSerialNumbers(count) {
   });
 }
 
-// ============================================
-// ✅ NEW: VOID BATCH SERIALS
-// Called when user cancels from PrintPreview
+// Void batch serials - Called when user cancels from PrintPreview
 // This deletes the pending serial numbers and decrements the counter
 // Ensures serial numbers are not wasted when print is cancelled
-// ============================================
 export async function voidBatchSerials(serialIds) {
   return apiCall('/serials/void-batch', {
     method: 'POST',
@@ -333,6 +331,41 @@ export async function getReports() {
 
 export async function getReportsByEvent(eventId) {
   return apiCall(`/reports/events/${eventId}/reports`);
+}
+
+// ============================================
+// Get UNIQUE reports by event
+// Returns deduplicated serial numbers with label_count
+// ============================================
+export async function getUniqueReportsByEvent(eventId) {
+  return apiCall(`/reports/events/${eventId}/unique-reports`);
+}
+
+// ============================================
+// ✅ NEW: Search events with labels
+// Supports time filter and field-based search
+// ============================================
+export async function searchEventsWithLabels(timeFilter, searchField, searchValue) {
+  const params = new URLSearchParams();
+  
+  if (timeFilter) params.append('timeFilter', timeFilter);
+  if (searchField) params.append('searchField', searchField);
+  if (searchValue) params.append('searchValue', searchValue);
+  
+  return apiCall(`/reports/search?${params.toString()}`);
+}
+
+// ============================================
+// ✅ NEW: Get filtered labels for an event
+// Returns labels matching search criteria within an event
+// ============================================
+export async function getFilteredLabelsByEvent(eventId, searchField, searchValue) {
+  const params = new URLSearchParams();
+  
+  if (searchField) params.append('searchField', searchField);
+  if (searchValue) params.append('searchValue', searchValue);
+  
+  return apiCall(`/reports/events/${eventId}/filtered-labels?${params.toString()}`);
 }
 
 export async function createReport(eventId, productName, capacityName, modelName, serialNumber, manufacturingCode, ssn, qrData) {

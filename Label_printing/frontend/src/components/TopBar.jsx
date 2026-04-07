@@ -23,18 +23,18 @@ function TopBar() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <div className="relative">
+        {/* <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
     type="text"
     placeholder="Search SKU..."
     className="pl-9 pr-4 py-1.5 text-sm rounded-md border border-input bg-background w-48 focus:outline-none focus:ring-1 focus:ring-ring"
   />
-        </div>
+        </div> */}
         <NavLink to="/settings" className="text-muted-foreground hover:text-foreground">
   <Settings size={18} />
 </NavLink>
-        <button className="text-muted-foreground hover:text-foreground"><Bell size={18} /></button>
+        {/* <button className="text-muted-foreground hover:text-foreground"><Bell size={18} /></button> */}
         {/* <button className="text-muted-foreground hover:text-foreground"><HelpCircle size={18} /></button> */}
         {/* <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">JR</div> */}
       </div>

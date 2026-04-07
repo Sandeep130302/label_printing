@@ -50,6 +50,94 @@ export async function getReportsByEvent(req, res) {
   }
 }
 
+// ============================================
+// Get UNIQUE reports by event (deduplicates by serial number)
+// ============================================
+
+export async function getUniqueReportsByEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+    console.log("Fetching unique reports for:", eventId);
+    const reports = await reportModel.getUniqueReportsByEvent(eventId);
+    res.json({
+      success: true,
+      data: reports || [],
+      message: 'Unique reports retrieved successfully'
+    });
+  } catch (error) {
+    console.error("CONTROLLER ERROR:", error);
+    res.status(500).json({
+      success: false,
+      error: 'DATABASE_ERROR',
+      message: 'Failed to retrieve unique reports',
+      details: error.message
+    });
+  }
+}
+
+// ============================================
+// ✅ NEW: Search events with labels
+// Supports time filter and field-based search
+// ============================================
+
+export async function searchEventsWithLabels(req, res) {
+  try {
+    const { timeFilter, searchField, searchValue } = req.query;
+    
+    const filters = {
+      timeFilter: timeFilter || 'all',
+      searchField: searchField || null,
+      searchValue: searchValue || null
+    };
+    
+    console.log('Search filters:', filters);
+    
+    const events = await reportModel.searchEventsWithLabels(filters);
+    
+    res.json({
+      success: true,
+      data: events || [],
+      message: 'Events searched successfully',
+      filters: filters
+    });
+  } catch (error) {
+    console.error("SEARCH ERROR:", error);
+    res.status(500).json({
+      success: false,
+      error: 'DATABASE_ERROR',
+      message: 'Failed to search events',
+      details: error.message
+    });
+  }
+}
+
+// ============================================
+// ✅ NEW: Get filtered labels for an event
+// ============================================
+
+export async function getFilteredLabelsByEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+    const { searchField, searchValue } = req.query;
+    
+    const labels = await reportModel.getFilteredLabelsByEvent(eventId, searchField, searchValue);
+    
+    res.json({
+      success: true,
+      data: labels || [],
+      message: 'Filtered labels retrieved successfully'
+    });
+  } catch (error) {
+    console.error("CONTROLLER ERROR:", error);
+    res.status(500).json({
+      success: false,
+      error: 'DATABASE_ERROR',
+      message: 'Failed to retrieve filtered labels',
+      details: error.message
+    });
+  }
+}
+
 export async function createReport(req, res) {
   try {
     const { eventId, productName, capacityName, modelName, serialNumber, manufacturingCode, ssn, qrData } = req.body;
