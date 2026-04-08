@@ -79,13 +79,14 @@ export async function getReportsByEvent(eventId) {
 }
 
 // ============================================
-// Get UNIQUE reports by event (deduplicates by serial number)
+// Get UNIQUE reports by event
+// Now uses duplicate_count column directly (no DISTINCT ON needed)
 // ============================================
 
 export async function getUniqueReportsByEvent(eventId) {
   try {
     const result = await query(
-      `SELECT DISTINCT ON (serial_number)
+      `SELECT 
         report_id,
         overall_report_id,
         product_name,
@@ -95,12 +96,12 @@ export async function getUniqueReportsByEvent(eventId) {
         manufacturing_code,
         ssn,
         qr_data,
-        COUNT(*) OVER (PARTITION BY serial_number) as label_count,
+        duplicate_count,
         COALESCE(is_reprinted, false) as is_reprinted,
         created_at
       FROM Report
       WHERE overall_report_id = $1
-      ORDER BY serial_number, created_at ASC`,
+      ORDER BY created_at DESC`,
       [eventId]
     );
 
@@ -112,7 +113,7 @@ export async function getUniqueReportsByEvent(eventId) {
 }
 
 // ============================================
-// ✅ NEW: SEARCH EVENTS WITH LABELS
+// SEARCH EVENTS WITH LABELS
 // Searches events that contain matching labels
 // Supports time filter and field-based search
 // ============================================
@@ -241,8 +242,9 @@ export async function searchEventsWithLabels(filters) {
 }
 
 // ============================================
-// ✅ NEW: Get filtered labels for an event
+// Get filtered labels for an event
 // Returns labels that match the search criteria within an event
+// Now uses duplicate_count column directly
 // ============================================
 
 export async function getFilteredLabelsByEvent(eventId, searchField, searchValue) {
@@ -271,7 +273,7 @@ export async function getFilteredLabelsByEvent(eventId, searchField, searchValue
     }
 
     const result = await query(
-      `SELECT DISTINCT ON (serial_number)
+      `SELECT 
         report_id,
         overall_report_id,
         product_name,
@@ -281,12 +283,12 @@ export async function getFilteredLabelsByEvent(eventId, searchField, searchValue
         manufacturing_code,
         ssn,
         qr_data,
-        COUNT(*) OVER (PARTITION BY serial_number) as label_count,
+        duplicate_count,
         COALESCE(is_reprinted, false) as is_reprinted,
         created_at
       FROM Report
       WHERE ${whereConditions.join(' AND ')}
-      ORDER BY serial_number, created_at ASC`,
+      ORDER BY created_at DESC`,
       params
     );
 
@@ -313,11 +315,34 @@ export async function getReportsBySerialNumber(serialNumber) {
   return result.rows;
 }
 
+// ============================================
+// ✅ FIXED: CREATE REPORT WITH UPSERT LOGIC
+// ============================================
+// - First print: INSERT with duplicate_count = 1
+// - Repeated print (same event + serial): UPDATE duplicate_count + 1
+// - Requires UNIQUE constraint on (overall_report_id, serial_number)
+// ============================================
+
 export async function createReport(eventId, productName, capacityName, modelName, serialNumber, manufacturingCode, ssn, qrData, isReprinted = false) {
   const result = await query(
-    `INSERT INTO Report (overall_report_id, product_name, capacity_name, model_name, serial_number, manufacturing_code, ssn, qr_data, is_reprinted)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-     RETURNING *`,
+    `INSERT INTO Report (
+      overall_report_id, 
+      product_name, 
+      capacity_name, 
+      model_name, 
+      serial_number, 
+      manufacturing_code, 
+      ssn, 
+      qr_data, 
+      is_reprinted, 
+      duplicate_count
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 1)
+    ON CONFLICT (overall_report_id, serial_number) 
+    DO UPDATE SET 
+      duplicate_count = Report.duplicate_count + 1,
+      is_reprinted = true
+    RETURNING *`,
     [eventId, productName, capacityName, modelName, serialNumber, manufacturingCode, ssn, qrData, isReprinted]
   );
   return result.rows[0];
@@ -356,7 +381,11 @@ export async function updateReport(reportId, updates) {
 
 export async function markAsReprinted(reportId) {
   const result = await query(
-    'UPDATE Report SET is_reprinted = true WHERE report_id = $1 RETURNING *',
+    `UPDATE Report SET 
+      is_reprinted = true,
+      duplicate_count = duplicate_count + 1
+     WHERE report_id = $1 
+     RETURNING *`,
     [reportId]
   );
   return result.rows[0];
@@ -383,6 +412,7 @@ export async function getReportSummary() {
     SELECT 
       COUNT(*) as total_reports,
       COUNT(DISTINCT overall_report_id) as total_events,
+      SUM(duplicate_count) as total_prints,
       SUM(CASE WHEN is_reprinted = true THEN 1 ELSE 0 END) as reprinted_count,
       COUNT(DISTINCT serial_number) as unique_serials
     FROM Report
@@ -395,6 +425,7 @@ export async function getEventSummary(eventId) {
     SELECT 
       oer.*,
       COUNT(r.report_id) as report_count,
+      SUM(r.duplicate_count) as total_prints,
       SUM(CASE WHEN r.is_reprinted = true THEN 1 ELSE 0 END) as reprinted_count,
       COUNT(DISTINCT r.product_name) as unique_products
     FROM Overall_Event_Report oer
