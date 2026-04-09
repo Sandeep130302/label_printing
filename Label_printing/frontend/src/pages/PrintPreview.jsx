@@ -255,7 +255,7 @@ function LabelCard({ label, paperType, companyConfig }) {
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
-            fontFamily: "monospace",
+            // fontFamily: "monospace",
             display: "flex",
             alignItems: "center",
             textTransform: "uppercase"
