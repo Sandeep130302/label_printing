@@ -1,4 +1,3 @@
-import express from 'express';
 import * as labelController from '../controllers/labelController.js';
 
 const router = express.Router();

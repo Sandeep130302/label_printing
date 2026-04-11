@@ -152,7 +152,7 @@ export async function generateSerialNumber(counterId) {
 
     // Format: XXXXYYMM
     const counterStr = String(counterValue).padStart(4, '0');
-    const serialNumber = `JR-${counterStr}${year}${month}`;
+    const serialNumber = `${counterStr}${year}${month}`;
 
     // Create serial number within the same transaction
     const serialResult = await client.query(
@@ -232,7 +232,7 @@ export async function batchGenerateSerialNumbers(count) {
     for (let i = 0; i < count; i++) {
       const counterValue = startingCounter + i;
       const counterStr = String(counterValue).padStart(4, '0');
-      const serialNumber = `JR-${counterStr}${year}${month}`;
+      const serialNumber = `${counterStr}${year}${month}`;
       
       const serialResult = await client.query(
         'INSERT INTO Serial_Number (serial_number, counter_id, is_used, is_active) VALUES ($1, $2, false, true) RETURNING *',

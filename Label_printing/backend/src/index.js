@@ -1,3 +1,5 @@
+
+
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -9,8 +11,9 @@ import envConfig from './config/env.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { corsOptions } from './middleware/corsMiddleware.js';
-import { getCorsOptions } from './middleware/corsMiddleware.js';
+
 // Import routes
+import dashboardRoutes from './routes/dashboard.js';  // ✅ NEW: Dashboard routes
 import masterRoutes from './routes/master.js';
 import configRoutes from './routes/config.js';
 import serialRoutes from './routes/serials.js';
@@ -27,9 +30,8 @@ const app = express();
 // ============================================
 
 // 1. CORS (must be first)
-//app.use(cors);
 app.use(cors(corsOptions));
-app.options('*', cors(getCorsOptions())); // preflight
+
 // 2. Body Parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -53,6 +55,9 @@ app.get('/health', (req, res) => {
 // ============================================
 // API ROUTES
 // ============================================
+
+// ✅ NEW: Dashboard routes
+app.use('/api/dashboard', dashboardRoutes);
 
 // Master data routes (Products, Capacities, Models)
 app.use('/api/master', masterRoutes);
@@ -78,6 +83,12 @@ app.get('/api', (req, res) => {
     message: 'JR TechLabs Label Printing System API',
     version: '1.0.0',
     endpoints: {
+      dashboard: {
+        all: 'GET /api/dashboard',
+        stats: 'GET /api/dashboard/stats',
+        events: 'GET /api/dashboard/events',
+        chart: 'GET /api/dashboard/chart?filter=thisMonth'
+      },
       master: {
         products: 'GET /api/master/products, POST /api/master/products',
         capacities: 'GET /api/master/capacities, POST /api/master/capacities',
@@ -129,6 +140,7 @@ const server = app.listen(PORT, () => {
   console.log(`\n📍 Server URL: http://localhost:${PORT}`);
   console.log(`🔗 API Base: http://localhost:${PORT}/api`);
   console.log(`💚 Health: http://localhost:${PORT}/health`);
+  console.log(`📊 Dashboard: http://localhost:${PORT}/api/dashboard`);
   console.log(`📚 Endpoints: http://localhost:${PORT}/api`);
   console.log('\n' + '='.repeat(60));
   console.log('✓ Express server started successfully');

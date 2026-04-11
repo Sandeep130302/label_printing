@@ -297,7 +297,7 @@ function LabelCard({ label, paperType, companyConfig }) {
             fontSize: labelFontSize,
             display: "flex",
             alignItems: "center"
-          }}>SSN</div>
+          }}>BATCH NO</div>
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
@@ -641,9 +641,9 @@ function PrintPreview() {
             align-items: center;
             text-transform: uppercase;
           }
-          .label-value.mono {
-            font-family: monospace;
-          }
+          // .label-value.mono {
+          //   font-family: monospace;
+          // }
           .made-in {
             height: ${dims.madeInHeight};
             background-color: #000;
@@ -723,14 +723,14 @@ function PrintPreview() {
                 </div>
                 <div class="label-row">
                   <div class="label-key">SERIAL NO</div>
-                  <div class="label-value mono">${(label.serialNo || '').toUpperCase()}</div>
+                  <div class="label-value ">${(label.serialNo || '').toUpperCase()}</div>
                 </div>
                 <div class="label-row">
                   <div class="label-key">MFG . CODE</div>
                   <div class="label-value">${(label.mfgCode || '').toUpperCase()}</div>
                 </div>
                 <div class="label-row">
-                  <div class="label-key">SSN</div>
+                  <div class="label-key">BATCH NO</div>
                   <div class="label-value">${(label.ssn || '').toUpperCase()}</div>
                 </div>
                 <div class="made-in">${madeInValue.toUpperCase()}</div>
