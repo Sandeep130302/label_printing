@@ -2261,7 +2261,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
-            color: "#374151",
+            color: "#000",
             fontWeight: "700",
             fontSize: labelFontSize,
             display: "flex",
@@ -2285,7 +2285,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
-            color: "#374151",
+            color: "#000",
             fontWeight: "700",
             fontSize: labelFontSize,
             display: "flex",
@@ -2309,7 +2309,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
-            color: "#374151",
+            color: "#000",
             fontWeight: "700",
             fontSize: labelFontSize,
             display: "flex",
@@ -2333,7 +2333,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
-            color: "#374151",
+            color: "#000",
             fontWeight: "700",
             fontSize: labelFontSize,
             display: "flex",
@@ -2357,7 +2357,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
-            color: "#374151",
+            color: "#000",
             fontWeight: "700",
             fontSize: labelFontSize,
             display: "flex",
@@ -2381,7 +2381,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           <div style={{ 
             width: dims.valueWidth, 
             paddingLeft: "2mm",
-            color: "#374151",
+            color: "#000",
             fontWeight: "700",
             fontSize: labelFontSize,
             display: "flex",
@@ -2446,7 +2446,7 @@ function LabelCard({ label, paperType, companyConfig }) {
             paddingRight: dims.contactRightPadding
           }}
         >
-          <div style={{ fontSize: contactFontSize, color: "#374151", fontWeight: "600" }}>
+          <div style={{ fontSize: contactFontSize, color: "#000", fontWeight: "600" }}>
             FOR SERVICE
           </div>
           {/* <div style={{ fontSize: contactFontSize, color: "#374151", fontWeight: "500" }}>
@@ -2762,7 +2762,7 @@ function PrintPreview() {
           .label-value {
             width: ${dims.valueWidth};
             padding-left: 2mm;
-            color: #374151;
+            color: #000;
             font-weight: 700;
             font-size: ${labelFontSize};
             display: flex;
@@ -2814,7 +2814,7 @@ function PrintPreview() {
           
           .contact-text {
             font-size: ${contactFontSize};
-            color: #374151;
+            color: #000;
             font-weight: 600;
           }
           
