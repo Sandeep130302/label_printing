@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Printer, Loader2 } from "lucide-react";
+import { Printer, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
@@ -12,22 +12,33 @@ import * as api from "@/services/api";
 const DRAFT_STORAGE_KEY = "labelPrinting_draft";
 
 // ============================================
-// PAPER CONFIGURATIONS - EXACT DIMENSIONS
+// PAPER CONFIGURATIONS - CORRECTED DIMENSIONS
+// ============================================
+// A4 = 210mm × 297mm
+// 
+// WIDTH CALCULATION (2 labels per row):
+//   Left Margin + Label1 + Gap + Label2 + Right Margin = 210mm
+//   31.5mm + 71mm + 5mm + 71mm + 31.5mm = 210mm ✓
+//
+// HEIGHT CALCULATION (4 labels per column):
+//   Top Margin + (Label × 4) + (Gap × 3) + Bottom Margin = 297mm
+//   18.5mm + (59mm × 4) + (5mm × 3) + 15.5mm = 285mm
+//   Extra space: 297mm - 285mm = 12mm (distributed to margins)
 // ============================================
 const PAPER_CONFIGS = {
   A4_SHEET: {
     name: "A4 SHEET",
     pageWidth: "210mm",
     pageHeight: "297mm",
-    labelWidth: "71mm",
-    labelHeight: "59mm",
+    labelWidth: "71mm",      // 7.1cm
+    labelHeight: "59mm",     // 5.9cm
     labelsPerRow: 2,
     labelsPerColumn: 4,
     labelsPerPage: 8,
-    marginTop: "10mm",
-    marginBottom: "10mm",
-    marginLeft: "34mm",
-    marginRight: "34mm",
+    marginTop: "18.5mm",
+    marginBottom: "15.5mm",
+    marginLeft: "31.5mm",
+    marginRight: "31.5mm",
     gapHorizontal: "5mm",
     gapVertical: "5mm"
   },
@@ -255,14 +266,13 @@ function LabelCard({ label, paperType, companyConfig }) {
             color: "#374151",
             fontWeight: "700",
             fontSize: labelFontSize,
-            // fontFamily: "monospace",
             display: "flex",
             alignItems: "center",
             textTransform: "uppercase"
           }}>{label.serialNo || ""}</div>
         </div>
         
-        {/* MFG . CODE */}
+        {/* MFG CODE */}
         <div style={{ display: "flex", height: dims.rowHeight, borderBottom: "1px solid #e5e5e5" }}>
           <div style={{ 
             width: dims.keyWidth, 
@@ -286,7 +296,7 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>{label.mfgCode || ""}</div>
         </div>
         
-        {/* SSN */}
+        {/* BATCH NO / SSN */}
         <div style={{ display: "flex", height: dims.rowHeight, borderBottom: "1px solid #e5e5e5" }}>
           <div style={{ 
             width: dims.keyWidth, 
@@ -310,69 +320,86 @@ function LabelCard({ label, paperType, companyConfig }) {
           }}>{label.ssn || ""}</div>
         </div>
       </div>
-      
-      {/* MADE IN BAR */}
-      <div style={{ 
-        height: dims.madeInHeight,
-        backgroundColor: "#000", 
-        color: "white", 
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: "700",
-        fontSize: madeInFontSize,
-        textTransform: "uppercase"
-      }}>
-        {madeInValue}
-      </div>
 
-      {/* Footer - QR Code and Contact */}
-      <div style={{ 
-        height: dims.footerHeight,
-        display: "flex", 
-        borderTop: "1px solid #d1d5db",
-        backgroundColor: "#ffffff"
-      }}>
-        {/* QR Code Section */}
-        <div style={{ 
-          width: dims.qrContainerWidth,
+      {/* Made In Bar */}
+      <div 
+        style={{ 
+          height: dims.madeInHeight,
+          backgroundColor: "#000",
+          color: "white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRight: "1px solid #e5e5e5"
-        }}>
+          fontWeight: "700",
+          fontSize: madeInFontSize,
+          textTransform: "uppercase"
+        }}
+      >
+        {madeInValue}
+      </div>
+
+      {/* Footer - QR + Contact */}
+      <div 
+        style={{ 
+          height: dims.footerHeight,
+          display: "flex",
+          borderTop: "1px solid #d1d5db",
+          background: "white"
+        }}
+      >
+        {/* QR Code */}
+        <div 
+          style={{ 
+            width: dims.qrContainerWidth,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRight: "1px solid #e5e5e5"
+          }}
+        >
           <QRCodeSVG 
             value={label.serialNo || "N/A"} 
             size={qrSizePx}
             level="M"
           />
         </div>
-        {/* Contact Info Section */}
-        <div style={{ 
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          textAlign: "center",
-          paddingRight: dims.contactRightPadding
-        }}>
-          <div style={{ fontSize: contactFontSize, color: "#374151", fontWeight: "600" }}>For Service Assistance</div>
-          <div style={{ fontSize: contactFontSize, color: "#374151", fontWeight: "500" }}>Please Call</div>
-          <div style={{ fontSize: phoneFontSize, color: "#ff0a0a", fontWeight: "bold" }}>{callAssistantNo}</div>
+        
+        {/* Contact Info */}
+        <div 
+          style={{ 
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            paddingRight: dims.contactRightPadding
+          }}
+        >
+          <div style={{ fontSize: contactFontSize, color: "#374151", fontWeight: "600" }}>
+            For Service Assistance
+          </div>
+          <div style={{ fontSize: contactFontSize, color: "#374151", fontWeight: "500" }}>
+            Please Call
+          </div>
+          <div style={{ fontSize: phoneFontSize, color: "#ff0a0a", fontWeight: "bold" }}>
+            {callAssistantNo}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Page component that holds multiple labels
+// ============================================
+// PRINT PAGE COMPONENT
+// ============================================
 function PrintPage({ labels, paperType, pageIndex, companyConfig }) {
   const config = PAPER_CONFIGS[paperType];
   
   return (
     <div 
-      className="print-page bg-white mx-auto mb-4 shadow-lg"
+      className="print-page bg-white shadow-lg mb-6"
       style={{
         width: config.pageWidth,
         minHeight: config.pageHeight,
@@ -385,14 +412,13 @@ function PrintPage({ labels, paperType, pageIndex, companyConfig }) {
         gridTemplateRows: `repeat(${config.labelsPerColumn}, ${config.labelHeight})`,
         columnGap: config.gapHorizontal,
         rowGap: config.gapVertical,
-        pageBreakAfter: "always",
         boxSizing: "border-box"
       }}
     >
       {labels.map((label, idx) => (
         <LabelCard 
-          key={`${pageIndex}-${idx}`} 
-          label={label} 
+          key={`page-${pageIndex}-label-${idx}`}
+          label={label}
           paperType={paperType}
           companyConfig={companyConfig}
         />
@@ -401,20 +427,53 @@ function PrintPage({ labels, paperType, pageIndex, companyConfig }) {
   );
 }
 
+// ============================================
+// MAIN PRINT PREVIEW COMPONENT
+// ============================================
 function PrintPreview() {
   const location = useLocation();
   const navigate = useNavigate();
+  
   const [paperType, setPaperType] = useState("A4_SHEET");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [companyConfig, setCompanyConfig] = useState(null);
   const [configLoading, setConfigLoading] = useState(true);
   const [isPrinting, setIsPrinting] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);  // ✅ NEW: Track cancel loading state
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Get labels from navigation state
   const labelsData = location.state?.labels || [];
 
-  // ✅ NEW: Extract unique serial IDs for voiding on cancel
+  // Fetch company config
+  useEffect(() => {
+    async function fetchConfig() {
+      try {
+        const result = await api.getActiveConfig();
+        if (result.success && result.data) {
+          setCompanyConfig(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch company config:", error);
+      } finally {
+        setConfigLoading(false);
+      }
+    }
+    fetchConfig();
+  }, []);
+
+  // Expand labels by dupCount
+  const expandedLabels = useMemo(() => {
+    const result = [];
+    labelsData.forEach(label => {
+      const count = label.dupCount || 1;
+      for (let i = 0; i < count; i++) {
+        result.push({ ...label });
+      }
+    });
+    return result;
+  }, [labelsData]);
+
+  // Get unique serial IDs for voiding on cancel
   const uniqueSerialIds = useMemo(() => {
     const ids = new Set();
     labelsData.forEach(label => {
@@ -425,104 +484,76 @@ function PrintPreview() {
     return Array.from(ids);
   }, [labelsData]);
 
-  // Fetch company config on mount
-  useEffect(() => {
-    async function fetchConfig() {
-      try {
-        const result = await api.getActiveConfig();
-        if (result.success && result.data) {
-          setCompanyConfig(result.data);
-        }
-      } catch (error) {
-        console.error("Error fetching config:", error);
-      } finally {
-        setConfigLoading(false);
-      }
-    }
-    fetchConfig();
-  }, []);
-
-  // Expand labels based on dupCount
-  const expandedLabels = useMemo(() => {
-    const expanded = [];
-    labelsData.forEach(label => {
-      const dupCount = label.dupCount || 1;
-      for (let i = 0; i < dupCount; i++) {
-        expanded.push({ ...label });
-      }
-    });
-    return expanded;
-  }, [labelsData]);
-
-  // Split labels into pages based on paper configuration
+  // Group labels into pages
   const pages = useMemo(() => {
     const config = PAPER_CONFIGS[paperType];
+    const result = [];
     const labelsPerPage = config.labelsPerPage;
-    const pageArray = [];
     
     for (let i = 0; i < expandedLabels.length; i += labelsPerPage) {
-      pageArray.push(expandedLabels.slice(i, i + labelsPerPage));
+      result.push(expandedLabels.slice(i, i + labelsPerPage));
     }
     
-    if (pageArray.length === 0) {
-      pageArray.push([]);
-    }
-    
-    return pageArray;
+    return result;
   }, [expandedLabels, paperType]);
 
+  // ============================================
+  // PRINT FUNCTION - WITH CORRECT @PAGE RULES
+  // ============================================
   const handlePrint = async () => {
+    setIsPrinting(true);
+
     const config = PAPER_CONFIGS[paperType];
     const isRoll = paperType === "ROLL_SHEET";
     const dims = isRoll ? LABEL_DIMENSIONS.ROLL : LABEL_DIMENSIONS.A4_A3;
-    
-    // Company config values
-    const callAssistantNo = companyConfig?.call_assistant_no || "94421 50005";
-    const madeInValue = companyConfig?.made_in_value || "MADE IN INDIA";
+
+    // Get company config values
     const companyLogo = companyConfig?.company_logo || null;
+    const callAssistantNo = companyConfig?.call_assistant_no || "99999 99999";
+    const madeInValue = companyConfig?.made_in_value || "MADE IN Trichy";
 
     // Font sizes
     const labelFontSize = isRoll ? "3.5mm" : "3mm";
     const madeInFontSize = isRoll ? "4mm" : "3mm";
     const contactFontSize = isRoll ? "4mm" : "3.3mm";
     const phoneFontSize = isRoll ? "4.5mm" : "3.8mm";
-    const logoHeight = isRoll ? "10mm" : "7mm";
+    const logoHeight = isRoll ? "10mm" : "8mm";
+    
+    // QR size
     const qrSizePx = isRoll ? 72 : 60;
 
-    // ============================================
-    // SAVE TO DATABASE
-    // ============================================
-    setIsPrinting(true);
+    // Save print event to database
     try {
-      // Generate event number (format: EVT-YYYYMMDD-HHMMSS)
-      const now = new Date();
-      const eventNumber = `EVT-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+      const eventNumber = `EVT-${new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14)}`;
       
-      // Create event report
+      // Create overall event report
       const eventResult = await api.createEventReport(eventNumber, expandedLabels.length);
       
       if (eventResult.success && eventResult.data) {
         const eventId = eventResult.data.overall_report_id;
         
-        // Track unique serialIds to avoid duplicate Label entries
+        // Track which serial IDs we've already saved to avoid duplicates
         const processedSerialIds = new Set();
         
-        // Create individual reports AND labels for each label
+        // Create report entries with duplicate handling
         for (const label of expandedLabels) {
-          // Save to Report table (for history/analytics)
-          await api.createReport(
-            eventId,
-            label.product || '',
-            label.capacity || '',
-            label.model || '',
-            label.serialNo || '',
-            label.mfgCode || '',
-            label.ssn || '',
-            label.serialNo || '' // QR data is serial number
-          );
-          
-          // Save to Label table (only once per unique serialId)
-          // This prevents duplicate Label entries when dupCount > 1
+          try {
+            // Create report entry (UPSERT - will increment duplicate_count if exists)
+            await api.createReport(
+              eventId,
+              label.product || '',
+              label.capacity || '',
+              label.model || '',
+              label.serialNo || '',
+              label.mfgCode || '',
+              label.ssn || '',
+              label.serialNo || ''  // QR data
+            );
+          } catch (reportError) {
+            console.error('Failed to save report:', label.serialNo, reportError);
+          }
+
+          // Save to Label table ONCE per unique serialId
           if (label.serialId && !processedSerialIds.has(label.serialId)) {
             processedSerialIds.add(label.serialId);
             
@@ -534,60 +565,75 @@ function PrintPreview() {
                 label.serialId,
                 label.mfgCode || '',
                 label.ssn || '',
-                label.serialNo || '',  // QR data
-                null,  // formatId - can be set if needed
-                companyConfig?.config_id || null,  // configId
-                label.dupCount || 1  // Pass duplicate count
+                label.serialNo || '',
+                null,
+                companyConfig?.config_id || null,
+                label.dupCount || 1
               );
-              console.log('Label saved to database:', label.serialNo, 'dupCount:', label.dupCount);
             } catch (labelError) {
               console.error('Failed to save label:', label.serialNo, labelError);
-              // Continue even if one label fails
             }
           }
         }
         
-        console.log('Print event saved successfully:', eventNumber);
-        console.log('Labels saved:', processedSerialIds.size);
         toast.success(`Print saved: ${processedSerialIds.size} label(s)`);
-        
-        // ✅ Clear draft ONLY after successful database save
-        // This ensures the draft is preserved if user cancels
         localStorage.removeItem(DRAFT_STORAGE_KEY);
-        console.log('Draft cleared after successful print');
       }
     } catch (error) {
       console.error('Failed to save print event:', error);
       toast.error('Failed to save print data, but continuing with print...');
-      // Continue with printing even if save fails
     } finally {
       setIsPrinting(false);
     }
 
     // Build logo HTML
     const logoHtml = companyLogo 
-      ? `<img src="${companyLogo}" alt="Logo" style="height: ${logoHeight}; object-fit: contain;" />`
+      ? `<img src="${companyLogo}" alt="Logo" style="height: ${logoHeight}; width: 100%; object-fit: contain;" />`
       : `<span style="color: #2563eb; font-weight: bold; font-size: ${isRoll ? '5mm' : '4mm'};">jr</span><span style="color: #374151; font-weight: 600; font-size: ${isRoll ? '5mm' : '4mm'};">tech</span><span style="color: #22c55e; font-weight: 600; font-size: ${isRoll ? '5mm' : '4mm'};">labs</span><span style="color: #9ca3af; font-size: ${isRoll ? '2.5mm' : '2mm'}; margin-left: 1mm;">pvt . ltd</span>`;
 
     const printWindow = window.open('', '_blank');
     
+    // ============================================
+    // CRITICAL: @page rule for exact dimensions
+    // ============================================
     const printContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <title>Print Labels - ${config.name}</title>
         <style>
+          /* ============================================
+             @PAGE RULE - CRITICAL FOR EXACT DIMENSIONS
+             This tells the browser/printer the exact page size
+             and that we're handling our own margins
+             ============================================ */
+          @page {
+            size: ${config.pageWidth} ${config.pageHeight};
+            margin: 0;
+          }
+          
           * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
           }
+          
+          html, body {
+            width: ${config.pageWidth};
+            margin: 0;
+            padding: 0;
+          }
+          
           body {
             font-family: Arial, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            color-adjust: exact;
           }
+          
           .print-page {
             width: ${config.pageWidth};
-            min-height: ${config.pageHeight};
+            height: ${config.pageHeight};
             padding-top: ${config.marginTop};
             padding-bottom: ${config.marginBottom};
             padding-left: ${config.marginLeft};
@@ -598,7 +644,13 @@ function PrintPreview() {
             column-gap: ${config.gapHorizontal};
             row-gap: ${config.gapVertical};
             page-break-after: always;
+            box-sizing: border-box;
           }
+          
+          .print-page:last-child {
+            page-break-after: auto;
+          }
+          
           .label-card {
             width: ${config.labelWidth};
             height: ${config.labelHeight};
@@ -608,19 +660,24 @@ function PrintPreview() {
             background: white;
             page-break-inside: avoid;
             overflow: hidden;
+            box-sizing: border-box;
           }
+          
           .label-header {
             height: ${dims.headerHeight};
             display: flex;
             justify-content: center;
             align-items: center;
             border-bottom: 1px solid #e5e5e5;
+            overflow: hidden;
           }
+          
           .label-row {
             display: flex;
             height: ${dims.rowHeight};
             border-bottom: 1px solid #e5e5e5;
           }
+          
           .label-key {
             width: ${dims.keyWidth};
             background-color: #000;
@@ -631,6 +688,7 @@ function PrintPreview() {
             display: flex;
             align-items: center;
           }
+          
           .label-value {
             width: ${dims.valueWidth};
             padding-left: 2mm;
@@ -641,9 +699,7 @@ function PrintPreview() {
             align-items: center;
             text-transform: uppercase;
           }
-          // .label-value.mono {
-          //   font-family: monospace;
-          // }
+          
           .made-in {
             height: ${dims.madeInHeight};
             background-color: #000;
@@ -655,12 +711,14 @@ function PrintPreview() {
             font-size: ${madeInFontSize};
             text-transform: uppercase;
           }
+          
           .label-footer {
             height: ${dims.footerHeight};
             display: flex;
             border-top: 1px solid #d1d5db;
             background: white;
           }
+          
           .qr-section {
             width: ${dims.qrContainerWidth};
             display: flex;
@@ -668,10 +726,12 @@ function PrintPreview() {
             justify-content: center;
             border-right: 1px solid #e5e5e5;
           }
+          
           .qr-section img {
             width: ${dims.qrSize};
             height: ${dims.qrSize};
           }
+          
           .contact-section {
             flex: 1;
             display: flex;
@@ -681,23 +741,34 @@ function PrintPreview() {
             text-align: center;
             padding-right: ${dims.contactRightPadding};
           }
+          
           .contact-text {
             font-size: ${contactFontSize};
             color: #374151;
             font-weight: 600;
           }
+          
           .contact-text.light {
             font-weight: 500;
           }
+          
           .contact-phone {
             font-size: ${phoneFontSize};
             color: #ff0a0a;
             font-weight: bold;
           }
+          
           @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .print-page { page-break-after: always; }
-            .label-card { page-break-inside: avoid; }
+            html, body {
+              width: ${config.pageWidth};
+              height: ${config.pageHeight};
+            }
+            .print-page {
+              page-break-after: always;
+            }
+            .label-card {
+              page-break-inside: avoid;
+            }
           }
         </style>
       </head>
@@ -723,7 +794,7 @@ function PrintPreview() {
                 </div>
                 <div class="label-row">
                   <div class="label-key">SERIAL NO</div>
-                  <div class="label-value ">${(label.serialNo || '').toUpperCase()}</div>
+                  <div class="label-value">${(label.serialNo || '').toUpperCase()}</div>
                 </div>
                 <div class="label-row">
                   <div class="label-key">MFG . CODE</div>
@@ -765,18 +836,14 @@ function PrintPreview() {
   };
 
   // ============================================
-  // ✅ UPDATED: Handle Cancel with Serial Voiding
-  // When user cancels, void the pending serial numbers
-  // This ensures serial numbers are not wasted
+  // Handle Cancel with Serial Voiding
   // ============================================
   const handleCancel = async () => {
-    // If no serial IDs to void, just navigate back
     if (uniqueSerialIds.length === 0) {
       navigate(-1);
       return;
     }
 
-    // Confirm cancel with user
     const confirmed = window.confirm(
       `Are you sure you want to cancel?\n\n` +
       `${uniqueSerialIds.length} serial number(s) will be voided and can be regenerated later.`
@@ -789,26 +856,25 @@ function PrintPreview() {
     setIsCancelling(true);
 
     try {
-      // Call the void API to delete pending serials and decrement counter
       const result = await api.voidBatchSerials(uniqueSerialIds);
       
       if (result.success) {
-        console.log('Serials voided successfully:', result.data);
         toast.success(`${result.data.voided} serial number(s) voided`);
       } else {
-        console.error('Failed to void serials:', result);
         toast.error('Failed to void serials, but navigating back anyway');
       }
     } catch (error) {
       console.error('Error voiding serials:', error);
       toast.error('Error voiding serials');
-      // Still navigate back even if void fails
     } finally {
       setIsCancelling(false);
       navigate(-1);
     }
   };
 
+  // ============================================
+  // RENDER
+  // ============================================
   if (configLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -903,6 +969,21 @@ function PrintPreview() {
               <p><span className="text-gray-500">Total Pages:</span> <span className="font-medium">{pages.length}</span></p>
             </div>
 
+            {/* ⚠️ PRINT SETTINGS WARNING */}
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-start gap-2">
+                <AlertTriangle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-xs">
+                  <p className="font-semibold text-amber-800 mb-1">PRINTER SETTINGS</p>
+                  <ul className="text-amber-700 space-y-0.5">
+                    <li>• Scale: <strong>100%</strong> or <strong>Actual Size</strong></li>
+                    <li>• Margins: <strong>None</strong> or <strong>Minimum</strong></li>
+                    <li>• Do NOT use "Fit to Page"</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             {/* Company Config Info */}
             {companyConfig && (
               <div className="mt-4 text-xs text-gray-600 space-y-1 bg-white p-3 rounded border border-gray-100">
@@ -972,5 +1053,3 @@ function PrintPreview() {
 }
 
 export default PrintPreview;
-
-
