@@ -683,14 +683,16 @@ function PrintPreview() {
             display: flex;
             justify-content: center;
             align-items: center;
-            border-bottom: 1px solid #e5e5e5;
+            // border-bottom: 1px solid #e5e5e5;
+            border-bottom: 2px solid #000;
             overflow: hidden;
           }
           
           .label-row {
             display: flex;
             height: ${dims.rowHeight};
-            border-bottom: 1px solid #e5e5e5;
+            // border-bottom: 1px solid #e5e5e5;
+            border-bottom: 2px solid #000;
           }
           
           .label-key {
@@ -730,7 +732,8 @@ function PrintPreview() {
           .label-footer {
             height: ${dims.footerHeight};
             display: flex;
-            border-top: 1px solid #d1d5db;
+            //  border-top: 1px solid #d1d5db;
+            border-top: 1.5px solid #000;
             background: white;
           }
           
@@ -739,7 +742,8 @@ function PrintPreview() {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-right: 1px solid #e5e5e5;
+            //border-right: 1px solid #e5e5e5;
+            border-right: 1.5px solid #000;
           }
           
           .qr-section img {
