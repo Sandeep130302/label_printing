@@ -2101,7 +2101,7 @@ const PAPER_CONFIGS = {
     pageWidth: "210mm",
     pageHeight: "297mm",
     labelWidth: "71mm",      // 7.1cm
-    labelHeight: "59mm",     // 5.9cm
+    labelHeight: "60mm",     // 5.9cm
     labelsPerRow: 2,
     labelsPerColumn: 4,
     labelsPerPage: 8,
@@ -2117,7 +2117,7 @@ const PAPER_CONFIGS = {
     pageWidth: "329mm",
     pageHeight: "483mm",
     labelWidth: "71mm",
-    labelHeight: "59mm",
+    labelHeight: "60mm",
     labelsPerRow: 4,
     labelsPerColumn: 6,
     labelsPerPage: 24,
@@ -2151,7 +2151,7 @@ const PAPER_CONFIGS = {
 // ============================================
 const LABEL_DIMENSIONS = {
   A4_A3: {
-    headerHeight: "8mm",
+    headerHeight: "9mm",
     rowHeight: "5mm",
     madeInHeight: "4mm",
     footerHeight: "17mm",
@@ -2165,7 +2165,7 @@ const LABEL_DIMENSIONS = {
     contactRightPadding: "5mm"
   },
   ROLL: {
-    headerHeight: "11mm",
+    headerHeight: "10mm",
     rowHeight: "7mm",
     madeInHeight: "7mm",
     footerHeight: "20mm",
@@ -2216,7 +2216,7 @@ function LabelCard({ label, paperType, companyConfig }) {
       {/* Header with Logo */}
       <div 
         style={{ 
-          height: isRoll ? "10mm" : "8mm",
+          height: isRoll ? "10mm" : "9mm",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
