@@ -280,7 +280,7 @@ function MasterManagement() {
                         )}
                       </Button>
                       {/* DELETE: Permanently removes from database */}
-                      <Button
+                      {/* <Button
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0 text-destructive"
@@ -289,7 +289,7 @@ function MasterManagement() {
                         title="Delete permanently"
                       >
                         <Trash2 size={14} />
-                      </Button>
+                      </Button> */}
                     </div>
                   </td>
                 </tr>
